@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantic Cache - Configuration Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sidebar-w: 272px;
+    --bg: #ffffff;
+    --sidebar-bg: #0f172a;
+    --sidebar-border: rgba(255,255,255,0.06);
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --accent: #3b82f6;
+    --accent-light: #eff6ff;
+    --code-bg: #f1f5f9;
+    --tip-bg: #fefce8;
+    --tip-border: #eab308;
+    --warn-bg: #fef2f2;
+    --warn-border: #ef4444;
+    --img-border: #d1d5db;
+    --section-border: #e5e7eb;
+    --heading-color: #0f172a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* --- Sidebar --- */
+  nav.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    overflow-y: auto;
+    padding: 0;
+    z-index: 100;
+  }
+
+  nav.sidebar::-webkit-scrollbar { width: 4px; }
+  nav.sidebar::-webkit-scrollbar-track { background: transparent; }
+  nav.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+
+  nav.sidebar .brand {
+    padding: 20px 20px 18px;
+    border-bottom: 1px solid var(--sidebar-border);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  nav.sidebar .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.04em;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  }
+
+  nav.sidebar .brand-text h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  nav.sidebar .brand-text span {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  nav.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 20px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 450;
+    transition: all 0.15s ease;
+    border-left: 3px solid transparent;
+    margin: 1px 0;
+    border-radius: 0 6px 6px 0;
+    margin-right: 8px;
+  }
+
+  nav.sidebar a .nav-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+
+  nav.sidebar a:hover {
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.05);
+    border-left-color: rgba(99,102,241,0.4);
+  }
+
+  nav.sidebar a:hover .nav-icon { opacity: 0.8; }
+
+  nav.sidebar a.active {
+    color: #fff;
+    background: linear-gradient(90deg, rgba(59,130,246,0.15), rgba(99,102,241,0.08));
+    border-left-color: #3b82f6;
+    font-weight: 600;
+  }
+
+  nav.sidebar a.active .nav-icon { opacity: 1; }
+
+  nav.sidebar .nav-group {
+    margin-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  nav.sidebar .nav-group-title {
+    padding: 16px 20px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #475569;
+  }
+
+  nav.sidebar .nav-group:first-of-type .nav-group-title {
+    padding-top: 12px;
+  }
+
+  nav.sidebar .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--sidebar-border);
+    margin-top: 8px;
+  }
+
+  nav.sidebar .sidebar-footer .version {
+    font-size: 10px;
+    color: #475569;
+    font-weight: 500;
+  }
+
+  /* --- Main Content --- */
+  main {
+    margin-left: var(--sidebar-w);
+    padding: 32px 40px 60px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--heading-color);
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+
+  main > p.subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* --- Overview --- */
+  .overview-section {
+    margin-bottom: 24px;
+  }
+
+  /* === DEMO (scoped to #demo) === */
+  #demo{font-family:'Inter',sans-serif;background:transparent;color:#1E293B;-webkit-font-smoothing:antialiased;margin-left:-40px;margin-right:-40px;--bg:#F8FAFC;--white:#FFF;--border:#E2E8F0;--text:#1E293B;--muted:#64748B;--light:#94A3B8;--blue:#2563EB;--blue-dk:#1D4ED8;--blue-lt:#DBEAFE;--blue-bg:#EFF6FF;--green:#10B981;--green-dk:#059669;--green-lt:#D1FAE5;--green-bg:#ECFDF5;--orange:#F59E0B;--orange-dk:#D97706;--orange-lt:#FEF3C7;--orange-bg:#FFF7ED;--red:#EF4444;--red-lt:#FEE2E2;--purple:#7C3AED;--purple-lt:#EDE9FE;--arrow:#CBD5E1;--radius:14px;--radius-sm:10px;--sans:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+  #demo *,#demo *::before,#demo *::after{box-sizing:border-box}
+  #demo .demo-stepper{display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:8px 32px;border-bottom:1px solid #E2E8F0;background:#FFF;font-family:'Inter',sans-serif}
+  #demo .hdr-sc{font-size:13px;font-weight:600;color:#64748B;font-family:'JetBrains Mono',monospace}
+  #demo .pips{display:flex;gap:6px}
+  #demo .pip{width:8px;height:8px;border-radius:50%;background:#E2E8F0;transition:all .4s}
+  #demo .pip.on{background:#3b82f6;transform:scale(1.4)}
+  #demo .main{display:grid;grid-template-columns:1fr 22px 1fr;padding:16px 24px 24px}
+  #demo .vs{display:flex;flex-direction:column;align-items:center;padding-top:50px}
+  #demo .vs-l{flex:1;width:1px;background:#E2E8F0}
+  #demo .vs-b{width:36px;height:36px;border-radius:50%;background:#FFF;border:2px solid #E2E8F0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#94A3B8;flex-shrink:0;margin:8px 0}
+  #demo .col{display:flex;flex-direction:column}
+  #demo .col-hd{display:flex;align-items:center;padding:10px 16px;gap:8px;border:1px solid #E2E8F0;border-radius:14px 14px 0 0;background:#FFF;position:relative}
+  #demo .col-hd svg{width:18px;height:18px;flex-shrink:0}
+  #demo .col-ey{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  #demo .col-ey--b{color:#2563EB}#demo .col-ey--o{color:#F59E0B}
+  #demo .col-t{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#0f172a}
+  #demo .bdg{position:absolute;right:14px;top:50%;transform:translateY(-50%);padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700}
+  #demo .bdg--g{background:#D1FAE5;color:#059669}
+  #demo .bdg--o{background:#FEF3C7;color:#D97706}
+  #demo .flow{border:none;border-radius:0;background:transparent;padding:24px 20px 32px;display:flex;flex-direction:column;align-items:center;gap:0;position:relative}
+  #demo .col--r .flow{justify-content:space-between}
+  #demo .nd{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:#FFF;border:1.5px solid #E2E8F0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);width:100%;max-width:100%;transition:border-color .3s,box-shadow .3s}
+  #demo .nd.act{border-color:#2563EB;box-shadow:0 2px 12px rgba(37,99,235,.1)}
+  #demo .col--r .nd.act{border-color:#F59E0B;box-shadow:0 2px 12px rgba(245,158,11,.1)}
+  #demo .nd.glow-g{border-color:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+  #demo .nd.glow-o{border-color:#F59E0B;box-shadow:0 2px 12px rgba(245,158,11,.12)}
+  #demo #l-user,#demo #l-gw,#demo #l-emb,#demo #l-resp{max-width:70%;margin-left:auto;margin-right:auto}
+  #demo .nd.resp-hit,#demo .nd.resp-miss{transition:none}
+  #demo .nd-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  #demo .nd-ico svg{width:22px;height:22px}
+  #demo .ico-user{background:#DBEAFE}#demo .ico-user svg{stroke:#2563EB;fill:none;stroke-width:2}
+  #demo .ico-shield{background:#EDE9FE}#demo .ico-shield svg{stroke:#7C3AED;fill:none;stroke-width:2}
+  #demo .ico-brain{background:linear-gradient(135deg,#2563EB,#1D4ED8)}#demo .ico-brain svg{stroke:#fff;fill:none;stroke-width:2}
+  #demo .ico-db{background:#D1FAE5}#demo .ico-db svg{stroke:#059669;fill:none;stroke-width:2}
+  #demo .ico-llm{background:#FEF3C7;padding:4px}#demo .ico-llm svg{stroke:#D97706;fill:none;stroke-width:2;width:32px;height:32px}
+  #demo .ico-resp{background:#DBEAFE}#demo .ico-resp svg{stroke:#2563EB;fill:none;stroke-width:2}
+  #demo .col--r .ico-user{background:#FEF3C7}#demo .col--r .ico-user svg{stroke:#F59E0B}
+  #demo .col--r .ico-resp{background:#FEF3C7}#demo .col--r .ico-resp svg{stroke:#F59E0B}
+  #demo .nd-body{flex:1;min-width:0}
+  #demo .nd-title{font-family:'Inter',sans-serif;font-size:17px;font-weight:700;line-height:1.3;color:#0f172a}
+  #demo .nd-title--xl{font-size:20px}
+  #demo .nd-sub{font-family:'Inter',sans-serif;font-size:14px;color:#6b7280;line-height:1.4;margin-top:2px}
+  #demo .nd-st{font-size:14px;font-weight:600;font-family:'JetBrains Mono',monospace;margin-top:4px;height:18px;overflow:hidden;opacity:0;transition:opacity .3s}
+  #demo .nd-st.show{opacity:1}
+  #demo .st-g{color:#059669}#demo .st-o{color:#D97706}#demo .st-m{color:#64748B}
+  #demo .qlist{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+  #demo .qi{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:400;color:#64748B;padding:3px 8px;border-left:3px solid transparent;border-radius:3px;transition:all .3s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #demo .qi.active{font-weight:400;color:#1E293B;border-left-color:#2563EB;background:#EFF6FF}
+  #demo .col--r .qi.active{border-left-color:#F59E0B;background:#FFF7ED}
+  #demo .entry-bdg{font-size:14px;font-weight:600;color:#059669;font-family:'JetBrains Mono',monospace}
+  #demo .spin{width:18px;height:18px;border:2px solid #E2E8F0;border-top-color:#F59E0B;border-radius:50%;visibility:hidden;margin-left:auto;flex-shrink:0;align-self:center}
+  #demo .spin.on{visibility:visible;animation:demo-sp .7s linear infinite}
+  @keyframes demo-sp{to{transform:rotate(360deg)}}
+  #demo .arr{display:flex;flex-direction:column;align-items:center;justify-content:center;height:50px}
+  #demo .arr svg{display:block}
+  #demo .dia-section{display:flex;flex-direction:column;align-items:center;width:100%;position:relative}
+  #demo .dia-row{display:flex;align-items:center;justify-content:center;gap:0;width:100%;position:relative}
+  #demo .dia-center{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  #demo .dia{width:150px;height:150px;background:#FFF;border:2px solid #E2E8F0;transform:rotate(45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:border-color .3s}
+  #demo .dia.act{border-color:#2563EB}
+  #demo .dia-inner{transform:rotate(-45deg);text-align:center;padding:8px;width:130px}
+  #demo .dia-text{display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+  #demo .dia-text-line{font-size:16px;font-weight:500;color:#374151}
+  #demo .dia-text-op{font-size:22px;font-weight:800;color:#2563EB;line-height:1;margin:2px 0}
+  #demo .dia-pct{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#1E293B;display:block;margin-top:2px}
+  #demo .dia-settings{position:absolute;left:calc(50% + 110px);top:35%;transform:translateY(-50%);background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 12px;font-size:12px;color:#374151;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:6px;z-index:4}
+  #demo .dia-settings strong{font-weight:700;color:#1A1A2E}
+  #demo .branch-svg-overlay{position:absolute;top:0;left:0;width:100%;height:4000px;pointer-events:none;z-index:2;overflow:visible}
+  #demo .branch-svg-overlay path{fill:none;stroke-width:2}
+  #demo .edge-yes{stroke:#10B981}#demo .edge-no{stroke:#F59E0B}
+  #demo .edge-dim{opacity:0.15}#demo .edge-glow{stroke-width:3;filter:drop-shadow(0 0 4px currentColor)}
+  #demo .branch-pill{position:absolute;z-index:3;padding:3px 12px;border-radius:10px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;transform:translate(-50%,-50%)}
+  #demo .branch-pill--yes{background:#ECFDF5;color:#10B981;border:1px solid #D1FAE5}
+  #demo .branch-pill--no{background:#FFF7ED;color:#F59E0B;border:1px solid #FEF3C7}
+  #demo .store-arc,#demo .store-label-css{opacity:0;transition:opacity .3s}
+  #demo .store-arc.show,#demo .store-label-css.show{opacity:1}
+  #demo .store-arc.active{stroke:#F59E0B}
+  #demo .store-pill{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:4px;background:#FFF7ED;color:#F59E0B;font-size:11px;font-weight:600;padding:4px 12px;border-radius:6px;border:1px solid #FDE68A;white-space:nowrap;font-family:'Inter',sans-serif;opacity:0;transition:opacity .3s;transform:translate(-50%,-50%)}
+  #demo .store-pill.show{opacity:1}
+  #demo .merge-edge{stroke-width:2;opacity:0.3;transition:opacity .3s,stroke-width .3s,filter .3s}
+  #demo .merge-edge.active{stroke-width:3;filter:drop-shadow(0 0 6px currentColor);opacity:1}
+  #demo .merge-edge.faded{stroke-width:2;opacity:0.3;filter:none}
+  #demo .result-pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 20px;border-radius:20px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;opacity:0;transform:scale(0.8);transition:opacity .3s,transform .3s;margin:12px auto;width:fit-content;font-family:'Inter',sans-serif}
+  #demo .result-pill.show{opacity:1;transform:scale(1)}
+  #demo .result-pill.hit{background:#10B981;box-shadow:0 2px 8px rgba(16,185,129,.3)}
+  #demo .result-pill.miss{background:#F59E0B;box-shadow:0 2px 8px rgba(245,158,11,.3)}
+  @keyframes demo-pill-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  #demo .result-pill.pulse{animation:demo-pill-pulse .25s ease}
+  #demo .dia-branches{display:flex;align-items:flex-start;justify-content:space-between;width:100%;margin-top:0;position:relative}
+  #demo .dia-branch-left,#demo .dia-branch-right{width:40%;flex:none}
+  #demo .dia-branch-left{display:flex;flex-direction:column;align-items:center;position:relative}
+  #demo .dia-branch-right{display:flex;flex-direction:column;align-items:center}
+  #demo .out-card{padding:14px 16px;border-radius:10px;border:1.5px solid #E2E8F0;background:#FFF;box-shadow:0 1px 3px rgba(0,0,0,.04);width:100%;min-height:120px;display:flex;align-items:flex-start;gap:10px;transition:border-color .3s,box-shadow .3s}
+  #demo .out-card.act,#demo .out-card.glow-g{border-color:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,0.3),0 0 20px rgba(16,185,129,0.15)}
+  #demo .out-card.glow-o,#demo .out-card.act.glow-o{border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,0.3),0 0 20px rgba(245,158,11,0.15)}
+  #demo .nd-lat{font-size:14px;font-weight:600;font-family:'JetBrains Mono',monospace;visibility:hidden;margin-top:4px;height:20px}
+  #demo .nd-lat.show{visibility:visible}
+  #demo .lat-f{color:#059669}#demo .lat-s{color:#D97706}
+  #demo .cache-table-abs{position:absolute;top:100%;left:0;width:70%;margin-top:10px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:1}
+  #demo .cache-table-abs.visible{opacity:1;pointer-events:auto}
+  #demo .cache-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'JetBrains Mono',monospace;border:1px solid #D1FAE5;border-radius:8px;overflow:hidden;background:#F9FAFB}
+  #demo .cache-table th{background:#ECFDF5;padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#059669;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #D1FAE5}
+  #demo .cache-table td{padding:5px 10px;border-bottom:1px solid #D1FAE5;color:#1E293B;font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;height:28px}
+  #demo .cache-table tr:last-child td{border-bottom:0}
+  #demo .ce-row{visibility:hidden}#demo .ce-row.filled{visibility:visible}
+  #demo .cache-table .ce-k{color:#059669;font-weight:600}
+  #demo .cache-table .ce-v{color:#64748B}
+  #demo .nd.resp-hit{border-color:#10B981;background:#ECFDF5;box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+  #demo .nd.resp-hit .ico-resp{background:#D1FAE5}#demo .nd.resp-hit .ico-resp svg{stroke:#059669}
+  #demo .nd.resp-miss{border-color:#F59E0B;background:#FFF7ED;box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+  #demo .nd.resp-miss .ico-resp{background:#FEF3C7}#demo .nd.resp-miss .ico-resp svg{stroke:#D97706}
+  #demo .resp-txt{font-size:14px;font-family:'JetBrains Mono',monospace;color:#64748B;font-style:italic;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:0;transition:opacity .3s}
+  #demo .resp-txt.show{opacity:1}
+  #demo .resp-lat{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;display:none;margin-top:2px}
+  #demo .resp-lat.show{display:block}
+  #demo .rlat-f{color:#059669}#demo .rlat-s{color:#D97706}
+  #demo .qpill{position:absolute;z-index:10;padding:5px 14px;border-radius:8px;font-size:14px;font-family:'JetBrains Mono',monospace;font-weight:500;white-space:nowrap;max-width:85%;overflow:hidden;text-overflow:ellipsis;opacity:0;pointer-events:none;will-change:top,left,opacity;transition:top .5s ease-in-out,left .5s ease-in-out,opacity .25s ease}
+  #demo .qpill.vis{opacity:1}
+  #demo .qpill--b{background:#EFF6FF;color:#1D4ED8;border:1px solid #DBEAFE}
+  #demo .sum{font-size:14px;font-weight:600;padding:8px 16px;border-radius:8px;text-align:center;width:100%;opacity:0;transition:opacity .5s;margin-top:12px}
+  #demo .sum.show{opacity:1}
+  #demo .sum--g{background:#D1FAE5;color:#059669}
+  #demo .hidden{display:none!important}
+  #demo .demo-info{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}
+  #demo .demo-info-inner{padding:24px 24px 20px;overflow-y:auto}
+  #demo .demo-info-title{font-family:inherit;font-size:28px;font-weight:800;color:#0f172a;letter-spacing:-0.03em;line-height:1.2;margin:0 0 8px;padding:0;border:none}
+  #demo .demo-info-subtitle{font-family:inherit;font-size:20px;font-weight:700;color:#0f172a;letter-spacing:-0.01em;margin:24px 0 10px;padding:0 0 6px;border:none;border-bottom:1px solid #e5e7eb}
+  #demo .demo-info-text{font-family:inherit;font-size:15px;line-height:1.6;color:#1a1a2e;margin-bottom:16px}
+  #demo .demo-info-text strong{color:#1a1a2e;font-weight:700}
+  #demo .demo-benefit{margin-bottom:10px;padding:10px 14px;border-left:3px solid;border-radius:0 8px 8px 0}
+  #demo .demo-benefit--green{background:#ECFDF5;border-color:#10B981}
+  #demo .demo-benefit--blue{background:#EFF6FF;border-color:#2563EB}
+  #demo .demo-benefit--purple{background:#F5F3FF;border-color:#7C3AED}
+  #demo .demo-benefit-title{font-family:inherit;font-size:15px;font-weight:700;margin-bottom:2px}
+  #demo .demo-benefit-desc{font-family:inherit;font-size:14px;color:#1a1a2e;line-height:1.6}
+  @media(max-width:900px){#demo .main{grid-template-columns:1fr}#demo .vs{display:none}#demo{margin-left:-16px;margin-right:-16px}}
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-top: 40px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--section-border);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--heading-color);
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  li::marker {
+    color: var(--accent);
+  }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #334155;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-amber { background: #fef3c7; color: #d97706; }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+
+  .callout {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    margin: 8px 0;
+    border-left: 3px solid;
+    max-width: 1100px;
+  }
+
+  .callout-tip {
+    background: var(--tip-bg);
+    border-color: var(--tip-border);
+  }
+
+  .callout-warn {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+  }
+
+  /* --- Screenshots: fixed frame, zoomable --- */
+  .screenshot {
+    margin: 12px 0 20px;
+    max-width: 1100px;
+    border: 1px solid var(--img-border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: zoom-in;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .screenshot:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+  }
+
+  .screenshot img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .screenshot figcaption {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    background: #f9fafb;
+    border-top: 1px solid var(--img-border);
+  }
+
+  .screenshot figcaption strong {
+    color: var(--text);
+  }
+
+  /* --- Lightbox overlay --- */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+    padding: 20px;
+  }
+
+  .lightbox.open {
+    display: flex;
+  }
+
+  .lightbox img {
+    max-width: 96vw;
+    max-height: 94vh;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  .lightbox .caption {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #e2e8f0;
+    font-size: 13px;
+    background: rgba(0,0,0,0.6);
+    padding: 6px 16px;
+    border-radius: 6px;
+    max-width: 80vw;
+    text-align: center;
+  }
+
+  .lightbox .close-btn {
+    position: fixed;
+    top: 14px;
+    right: 22px;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    font-family: inherit;
+    line-height: 1;
+  }
+
+  .lightbox .close-btn:hover {
+    opacity: 1;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 56px 0 0;
+  }
+
+  .section-header {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0f172a;
+    margin: 20px 0 24px;
+    padding-bottom: 0;
+    border: none;
+    display: block;
+  }
+
+
+  .step-arrow { color: var(--accent); font-weight: 600; }
+
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; }
+    main { margin-left: 0; padding: 20px 16px 40px; }
+    .screenshot { margin: 10px 0 16px; width: 100%; }
+    #demo { margin-left: -16px; margin-right: -16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="close-btn" aria-label="Close">&times;</button>
+  <img src="" alt="">
+  <div class="caption"></div>
+</div>
+
+<!-- Sidebar TOC -->
+<nav class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">SC</div>
+    <div class="brand-text">
+      <h2>Semantic Cache</h2>
+      <span>Configuration Guide</span>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Overview</div>
+    <a href="#overview">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
+      Overview
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Getting Started</div>
+    <a href="#step1">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+      1. Sign Up
+    </a>
+    <a href="#step2">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+      2. Configure LLM
+    </a>
+    <a href="#step3">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+      3. Add Model
+    </a>
+    <a href="#step4">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      4. Choose Provider
+    </a>
+    <a href="#step5">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+      5. Connect External App
+    </a>
+    <a href="#step6">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span>
+      6. Create API Key
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Demo App</div>
+    <a href="#step7">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+      7. Register Organization
+    </a>
+    <a href="#step8">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>
+      8. Connect Demo App
+    </a>
+    <a href="#step9">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      9. Select Organization
+    </a>
+    <a href="#step10">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+      10. Cache in Action
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Monitoring</div>
+    <a href="#step11">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+      11. Dashboard
+    </a>
+    <a href="#step12">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      12. Request Logs
+    </a>
+    <a href="#step13">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+      13. Cache Management
+    </a>
+    <a href="#step14">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+      14. Insights
+    </a>
+    <a href="#step15">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+      15. System Logs
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">Tuning</div>
+    <a href="#step16">
+      <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+      16. Advanced Settings
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="version">Semantic Cache v1.0</div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main>
+
+<h1>Configuration Guide</h1>
+<p class="subtitle">Set up and operate the Semantic Cache platform from zero to first cached response.</p>
+
+
+<!-- Overview -->
+<section class="overview-section" id="overview">
+  <div id="demo">
+    <div class="demo-stepper">
+      <span class="hdr-sc" id="hdr-q">Starting...</span>
+      <div class="pips"><div class="pip" data-i="0"></div><div class="pip" data-i="1"></div><div class="pip" data-i="2"></div><div class="pip" data-i="3"></div></div>
+    </div>
+    <div class="main">
+      <section class="col demo-info">
+        <div class="demo-info-inner">
+          <h3 class="demo-info-title">What is Semantic Caching?</h3>
+          <p class="demo-info-text">Semantic Caching stores the <strong>meaning</strong> of user queries — not just the text. It converts prompts into vector embeddings and measures how conceptually similar two requests are. If the similarity score exceeds a threshold, the cached response is returned instantly. Otherwise, the request flows to the LLM, and the new response is cached for future matches.</p>
+          <h3 class="demo-info-subtitle">Benefits</h3>
+          <div class="demo-benefit demo-benefit--green">
+            <div class="demo-benefit-title" style="color:#059669">Faster responses</div>
+            <div class="demo-benefit-desc">Cached responses return in milliseconds. Users get instant replies and your system handles more concurrent requests.</div>
+          </div>
+          <div class="demo-benefit demo-benefit--blue">
+            <div class="demo-benefit-title" style="color:#2563EB">Lower costs</div>
+            <div class="demo-benefit-desc">Every cache hit saves an LLM API call. Teams typically see significant cost reductions.</div>
+          </div>
+          <div class="demo-benefit demo-benefit--purple">
+            <div class="demo-benefit-title" style="color:#7C3AED">Better efficiency</div>
+            <div class="demo-benefit-desc">Repeat questions are handled with a simple vector lookup, freeing resources for queries that need fresh responses.</div>
+          </div>
+          <img src="images/latency-chart.png" alt="Latency by Match Type" style="width:100%;border-radius:8px;display:block;margin-top:38px;margin-bottom:30px">
+          <h3 class="demo-info-subtitle">Where It Fits: The AI Gateway</h3>
+          <p class="demo-info-text">The <strong>AI Gateway</strong> is the natural home for semantic caching — the centralized point where all LLM traffic flows. It intercepts, embeds, and matches queries before they reach the model. Faster responses, lower costs, reduced GPU pressure — all in one layer, without changing application code.</p>
+        </div>
+      </section>
+      <div></div>
+      <section class="col col--l">
+        <div class="flow" id="fl">
+          <div class="nd" id="l-user">
+            <div class="nd-ico ico-user"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div class="nd-body">
+              <div class="nd-title nd-title--xl">User Requests <span class="entry-bdg" id="l-req-bdg">4 queries</span></div>
+              <div class="qlist" id="l-qlist"></div>
+            </div>
+          </div>
+          <div class="arr"><svg width="10" height="50" viewBox="0 0 10 50"><line x1="5" y1="0" x2="5" y2="44" stroke="#CBD5E1" stroke-width="2"/><polygon points="5,50 1,42 9,42" fill="#CBD5E1"/></svg></div>
+          <div class="nd" id="l-gw">
+            <div class="nd-ico ico-shield"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="nd-body">
+              <div class="nd-title">AI Gateway</div>
+              <div class="nd-sub">PII Detection, Prompt Injection, Rate Limiting</div>
+              <div class="nd-st" id="l-gw-st"></div>
+            </div>
+          </div>
+          <div class="arr"><svg width="10" height="50" viewBox="0 0 10 50"><line x1="5" y1="0" x2="5" y2="44" stroke="#CBD5E1" stroke-width="2"/><polygon points="5,50 1,42 9,42" fill="#CBD5E1"/></svg></div>
+          <div class="nd" id="l-emb">
+            <div class="nd-ico ico-brain"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M12 2C9 2 7 4 7 6c-2 .5-3 2-3 4 0 2.5 1.5 4 3.5 5V18c0 1.5 1 3 2.5 3h4c1.5 0 2.5-1.5 2.5-3v-3c2-1 3.5-2.5 3.5-5 0-2-1-3.5-3-4 0-2-2-4-5-4z"/><line x1="12" y1="6" x2="12" y2="18"/></svg></div>
+            <div class="nd-body">
+              <div class="nd-title">Embedding Model</div>
+              <div class="nd-sub">Convert to vector intent</div>
+              <div class="nd-st" id="l-emb-st"></div>
+            </div>
+            <div class="spin" id="l-emb-sp" style="border-top-color:#2563EB"></div>
+          </div>
+          <div class="arr"><svg width="10" height="50" viewBox="0 0 10 50"><line x1="5" y1="0" x2="5" y2="44" stroke="#CBD5E1" stroke-width="2"/><polygon points="5,50 1,42 9,42" fill="#CBD5E1"/></svg></div>
+          <div class="dia-section" id="l-dia-section">
+            <div class="dia-row">
+              <div class="dia-center">
+                <div class="dia" id="l-dia">
+                  <div class="dia-inner">
+                    <div class="dia-text"><span class="dia-text-line">Is Similarity</span><span class="dia-text-op">&ge;</span><span class="dia-text-line">Threshold?</span></div>
+                    <span class="dia-pct" id="l-dia-pct">&mdash;</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dia-settings"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M10 1.5v2M10 16.5v2M3.5 3.5l1.4 1.4M15.1 15.1l1.4 1.4M1.5 10h2M16.5 10h2M3.5 16.5l1.4-1.4M15.1 4.9l1.4-1.4"/></svg> Threshold: <strong>90%</strong></div>
+            </div>
+            <svg class="branch-svg-overlay" id="l-branch-svg">
+              <defs>
+                <marker id="arr-g" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#10B981"/></marker>
+                <marker id="arr-o" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#F59E0B"/></marker>
+                <marker id="arr-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10 0L0 5L10 10z" fill="#94A3B8"/></marker>
+                <marker id="arr-mg" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#10B981"/></marker>
+                <marker id="arr-mo" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#F59E0B"/></marker>
+              </defs>
+              <path id="l-edge-yes" class="edge-yes" marker-end="url(#arr-g)"/>
+              <path id="l-edge-no" class="edge-no" marker-end="url(#arr-o)"/>
+              <path id="l-store-arc" class="store-arc" stroke="#94A3B8" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arr-s)"/>
+              <path id="l-merge-cache" class="merge-edge" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arr-mg)"/>
+              <path id="l-merge-llm" class="merge-edge" stroke="#F59E0B" stroke-width="2" fill="none" marker-end="url(#arr-mo)"/>
+            </svg>
+            <span class="branch-pill branch-pill--yes" id="l-pill-yes">YES</span>
+            <span class="branch-pill branch-pill--no" id="l-pill-no">NO</span>
+            <span class="store-pill" id="l-store-label">&#128190; Store in Cache</span>
+            <div style="display:flex;justify-content:center;height:57px;align-items:center">
+              <div class="result-pill" id="l-result-pill"><span id="l-result-icon">&#9889;</span><span id="l-result-text">CACHE HIT</span></div>
+            </div>
+            <div class="dia-branches">
+              <div class="dia-branch-left" id="l-branch-yes">
+                <div class="cache-table-abs" id="l-ct-wrap">
+                  <table class="cache-table"><thead><tr><th>Cached Query</th><th>Response</th></tr></thead><tbody>
+                    <tr class="ce-row" id="ce0"><td class="ce-k" id="ce0k"></td><td class="ce-v" id="ce0v"></td></tr>
+                    <tr class="ce-row" id="ce1"><td class="ce-k" id="ce1k"></td><td class="ce-v" id="ce1v"></td></tr>
+                  </tbody></table>
+                </div>
+                <div class="out-card" id="l-cache">
+                  <div class="nd-ico ico-db"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg></div>
+                  <div class="nd-body">
+                    <div class="nd-title">Cache Store <span class="entry-bdg" id="l-cache-cnt">0 entries</span></div>
+                    <div class="nd-sub">Fetch cached response</div>
+                    <div class="nd-lat" id="l-hit-lat"></div>
+                    <div class="nd-st" id="l-cache-st"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="dia-branch-right" id="l-branch-no">
+                <div class="out-card" id="l-llm">
+                  <div class="nd-ico ico-llm"><svg viewBox="0 0 40 40" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6c-3 0-5 1-6 3c-2 0-4 1-5 3c-1 2-1 4 0 6c-1 2 0 4 1 6c1 2 3 3 5 3h1"/><path d="M20 6c3 0 5 1 6 3c2 0 4 1 5 3c1 2 1 4 0 6c1 2 0 4-1 6c-1 2-3 3-5 3h-1"/><line x1="20" y1="6" x2="20" y2="28"/><path d="M15 14c2 1 4 1 5 0"/><path d="M15 20c2 1 4 1 5 0"/><path d="M21 14c2 1 4 1 5 0"/><path d="M21 20c2 1 4 1 5 0"/><line x1="20" y1="6" x2="20" y2="2"/><circle cx="20" cy="2" r="1.5" fill="#D97706"/><line x1="14" y1="9" x2="9" y2="5"/><circle cx="9" cy="5" r="1.5" fill="#D97706"/><line x1="26" y1="9" x2="31" y2="5"/><circle cx="31" cy="5" r="1.5" fill="#D97706"/><line x1="10" y1="15" x2="5" y2="13"/><circle cx="5" cy="13" r="1.5" fill="#D97706"/><line x1="30" y1="15" x2="35" y2="13"/><circle cx="35" cy="13" r="1.5" fill="#D97706"/><line x1="10" y1="22" x2="5" y2="24"/><circle cx="5" cy="24" r="1.5" fill="#D97706"/><line x1="30" y1="22" x2="35" y2="24"/><circle cx="35" cy="24" r="1.5" fill="#D97706"/><rect x="10" y="31" width="20" height="8" rx="2" fill="none"/><text x="20" y="37" text-anchor="middle" font-size="6" font-weight="700" fill="#D97706" font-family="system-ui,sans-serif">LLM</text></svg></div>
+                  <div class="nd-body">
+                    <div class="nd-title">Large Language Model</div>
+                    <div class="nd-sub">New response</div>
+                    <div class="nd-lat" id="l-llm-lat"></div>
+                    <div class="nd-st" id="l-llm-st"></div>
+                  </div>
+                  <div class="spin" id="l-llm-sp"></div>
+                </div>
+              </div>
+            </div>
+            <div style="height:90px"></div>
+            <div class="nd" id="l-resp" style="margin-top:10px">
+              <div class="nd-ico ico-resp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+              <div class="nd-body">
+                <div class="nd-title">Response to User</div>
+                <div class="resp-lat" id="l-resp-lat"></div>
+                <div class="resp-txt" id="l-resp-t"></div>
+              </div>
+            </div>
+            <div class="sum sum--g" id="l-sum"><span id="l-sum-t"></span></div>
+          </div>
+          <div class="qpill qpill--b" id="lp"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+
+<hr class="section-divider">
+<div class="section-header">Getting Started</div>
+
+<!-- Step 1 -->
+<h2 id="step1">1. Sign Up</h2>
+<ul>
+  <li>Navigate to your instance URL <i>(Right click and open in new tab <a href="http://48.200.15.121:3000/login" target="http://48.200.15.121:3000/login">http://48.200.15.121:3000/login</a>) </i> <span class="step-arrow">&rarr;</span> click the <strong>Sign Up</strong> tab.</li>
+  <li>Enter Full Name, Work Email, Password <span class="step-arrow">&rarr;</span> click <strong>Create Account</strong> (or use Google / Microsoft SSO).</li>
+  <li>Your organization is auto-created from your email domain (e.g., <code>example.com</code>).</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image1.png" alt="Sign up to create a new account">
+  <figcaption><strong>Step 1</strong> &mdash; Sign up to create a new account</figcaption>
+</figure>
+
+
+<!-- Step 2 -->
+<h2 id="step2">2. Configure LLM Model</h2>
+<ul>
+  <li>On first login, a <strong>Product Tour</strong> dialog appears &mdash; click <strong>Yes</strong> to walk through the UI.</li>
+  <li>Click <strong>Settings</strong> in the left sidebar to configure your LLM model.</li>
+</ul>
+
+<div class="callout callout-warn">&#9888;&#65039; The platform cannot process queries without at least one active Backend LLM.</div>
+
+<figure class="screenshot">
+  <img src="images/image2.png" alt="Configure LLM Model under Settings">
+  <figcaption><strong>Step 2</strong> &mdash; Configure LLM Model under Settings</figcaption>
+</figure>
+
+
+<!-- Step 3 -->
+<h2 id="step3">3. Add Model (LLM Model)</h2>
+<ul>
+  <li>Click <strong>Settings</strong> <span class="step-arrow">&rarr;</span> select the <strong>Model Configuration</strong> tab.</li>
+  <li>Click <strong>+ Add Model</strong> (top-right).</li>
+  <li><span class="badge badge-blue">Backend LLM</span> handles cache misses. <span class="badge badge-purple">Validator LLM</span> verifies cache hits (use a fast, cheap model).</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image3.png" alt="Under Settings, Add Model">
+  <figcaption><strong>Step 3</strong> &mdash; Under Settings &rarr; Add Model (LLM Model)</figcaption>
+</figure>
+
+
+<!-- Step 4 -->
+<h2 id="step4">4. Choose LLM Provider & API Key</h2>
+<ul>
+  <li>Select Provider (e.g., <code>Anthropic</code>) <span class="step-arrow">&rarr;</span> set Role to <strong>Backend LLM &mdash; handles cache misses</strong>.</li>
+  <li>Pick Model ID (e.g., <code>claude-sonnet-5</code>) <span class="step-arrow">&rarr;</span> enter a Display Name.</li>
+  <li>Paste your API Key from the LLM provider (e.g., Anthropic, OpenAI).
+    <div style="margin-top:8px;max-width:1075px;padding:10px 14px;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B;letter-spacing:0.5px;box-sizing:border-box">
+      <span style="color:#1E293B;font-weight:600">API Key:</span> sk-ant-&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;
+    </div>
+    <div style="margin-top:6px;max-width:1075px;font-size:12px;color:#94A3B8;font-style:italic">Paste your own key from your provider's dashboard. Keys are encrypted at rest and never displayed in full after saving.</div>
+  </li>
+  <li>Base URL auto-fills (e.g., <code>https://api.anthropic.com/v1</code>); leave it unless you use a proxy.</li>
+  <li>Check <strong>Active</strong> <span class="step-arrow">&rarr;</span> click <strong>Save</strong>.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image4.png" alt="Choose LLM provider and paste API Key">
+  <figcaption><strong>Step 4</strong> &mdash; Choose LLM provider, and paste the API Key from the LLM Provider</figcaption>
+</figure>
+
+
+<!-- Step 5 -->
+<h2 id="step5">5. Connect Semantic Cache to External Application</h2>
+<ul>
+  <li>After saving, the model appears in the table with Internal ID, Display Name, Role, Provider, Model ID, and masked API key.</li>
+  <li>Click <strong>Tenant Settings</strong> (bottom of sidebar) to get the API endpoint and API key for connecting external applications.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image5.png" alt="Connect Semantic Cache to External Application">
+  <figcaption><strong>Step 5</strong> &mdash; Connect Semantic Cache to External Application</figcaption>
+</figure>
+
+
+<!-- Step 6 -->
+<h2 id="step6">6. Create API Key</h2>
+<ul>
+  <li>Under <strong>API Keys</strong>, click <strong>+ Create Key</strong> <span class="step-arrow">&rarr;</span> copy the <code>sk-sc-...</code> key immediately.</li>
+  <li>Copy the <strong>API Endpoint</strong> URL shown at the bottom of the page (e.g., <code>http://48.200.15.121:3000/v1</code>).</li>
+  <li>The page also displays your Organization ID, Slug, Domain, WebSocket URL, and Cache Collection name.</li>
+  <li>A <strong>Configuration</strong> summary at the bottom shows current Similarity Threshold, Embedding Model, Cache TTL, and other active settings.</li>
+</ul>
+
+<div class="callout callout-warn">&#9888;&#65039; The API key is shown once on creation. Copy and store it securely before clicking Done.</div>
+
+<figure class="screenshot">
+  <img src="images/image6.png" alt="Create an API Key, copy API Key and endpoint">
+  <figcaption><strong>Step 6</strong> &mdash; Create an API Key, copy this API Key and API endpoint</figcaption>
+</figure>
+
+
+<hr class="section-divider">
+<div class="section-header">Demo App</div>
+
+<!-- Step 7 -->
+<h2 id="step7">7. Semantic Cache Demo: Register Organization</h2>
+<ul>
+  <li>Open the <strong>Semantic Cache Demo</strong> app &mdash; <i> (Right click and open in new tab <a href="http://4.154.166.117/" target="http://4.154.166.117/">http://4.154.166.117</a> ) </i> </li>
+  <li>Click <strong>Manage</strong> (top-right) to register a new organization.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image7.png" alt="Semantic Cache Demo app, register a new organization">
+  <figcaption><strong>Step 7</strong> &mdash; Semantic Cache Demo: Register a new organization</figcaption>
+</figure>
+
+
+<!-- Step 8 -->
+<h2 id="step8">8. Connect Demo App</h2>
+<ul>
+  <li>Enter Organization Name (e.g., <code>Example</code>).</li>
+  <li>Paste the <strong>API Endpoint</strong> and <strong>API Key</strong> from Step 6 <span class="step-arrow">&rarr;</span> click <strong>Register</strong>.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image8.png" alt="Paste the API Key and endpoint from step 6">
+  <figcaption><strong>Step 8</strong> &mdash; Paste the API Key and API endpoint from Step 6</figcaption>
+</figure>
+
+
+<!-- Step 9 -->
+<h2 id="step9">9. Select Organization</h2>
+<ul>
+  <li>Once registration completes, open the dropdown (top-right) <span class="step-arrow">&rarr;</span> select the newly created organization.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image9.png" alt="Choose a newly created organization">
+  <figcaption><strong>Step 9</strong> &mdash; Once registration completes, choose the newly created organization</figcaption>
+</figure>
+
+
+<!-- Step 10 -->
+<h2 id="step10">10. Semantic Cache in Action</h2>
+<ul>
+  <li>Start communicating with the application.</li>
+  <li>Ask a question (e.g., "What's a capital of Italy?") &mdash; first query goes to the LLM (~1.0s).</li>
+  <li>Ask a similar question (e.g., "Is Rome a capital of Italy?") &mdash; served from semantic cache (~79ms, marked <strong>Cached</strong>).</li>
+  <li>The similar text goes through semantic cache and doesn't require LLM calls.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image10.png" alt="Similar query served from semantic cache">
+  <figcaption><strong>Step 10</strong> &mdash; Similar text goes through semantic cache and doesn't require LLM calls</figcaption>
+</figure>
+
+
+<hr class="section-divider">
+<div class="section-header">Monitoring</div>
+
+<!-- Step 11 -->
+<h2 id="step11">11. Dashboard & Performance</h2>
+<ul>
+  <li><strong>Top row</strong>: Total Requests, Hit Rate (%), Avg Latency (Exact / Semantic / Non-Cached), Cost Saved ($).</li>
+  <li><strong>Latency by Match Type</strong>: compare Semantic Hit latency vs. Non-Cached LLM Call.</li>
+  <li><strong>Cache Hit Rate</strong>: donut chart with current hit percentage.</li>
+  <li><strong>Similarity Threshold Impact</strong>: hits at each threshold level &mdash; current threshold highlighted blue.</li>
+  <li><strong>Recent Requests</strong>: live table with Time, Query, Status, Cache ID, Latency.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image11.png" alt="Dashboard showing performance metrics">
+  <figcaption><strong>Step 11</strong> &mdash; View request logs and observe performance: LLM calls vs Semantic Cache, Cache Hit ratio, and Similarity Threshold Impact</figcaption>
+</figure>
+
+
+<!-- Step 12 -->
+<h2 id="step12">12. Request Logs</h2>
+<ul>
+  <li>Click <strong>Request Log</strong> in the sidebar.</li>
+  <li><strong>Summary bar</strong>: clickable cards for Total, Exact Hits, Semantic Hits, Near Misses, Misses, Avg Similarity.</li>
+  <li>Filter by status: <span class="badge badge-blue">All</span>, <span class="badge badge-gray">HIT_EXACT</span>, <span class="badge badge-green">HIT_SEMANTIC</span>, <span class="badge badge-gray">MISS</span>, <span class="badge badge-amber">NEAR_MISS</span>.</li>
+  <li><strong>Table columns</strong>: Timestamp, Query, Status, Similarity (%), Cache ID, Latency, Served By.</li>
+  <li>Click any row to expand: see <strong>Cache Match Details</strong> with candidates, similarity scores, and <strong>Reviewer Actions</strong>.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image12.png" alt="Request Log with expanded Cache Match Details">
+  <figcaption><strong>Step 12</strong> &mdash; Read Request Logs</figcaption>
+</figure>
+
+
+<!-- Step 13 -->
+<h2 id="step13">13. Cache Management</h2>
+<ul>
+  <li>Click <strong>Cache Management</strong> in the sidebar.</li>
+  <li>Filter by <span class="badge badge-blue">Semantic Cache</span> or <span class="badge badge-purple">Prompt Cache</span>, and search by query text.</li>
+  <li><strong>Table columns</strong>: Cache ID, Query, Hit Count, Last Hit On, Created At, Namespace, Model.</li>
+  <li>Click any row to expand: see full query, response preview, metadata (Cache ID, Model, Namespace, Hit Count, Last Hit On, Created At, TTL Remaining), and <strong>Delete</strong> button.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image13.png" alt="Cache Management with entry detail">
+  <figcaption><strong>Step 13</strong> &mdash; Cache Management: see all cache entries, time to live, and when cache was last hit</figcaption>
+</figure>
+
+
+<!-- Step 14 -->
+<h2 id="step14">14. Insights</h2>
+<ul>
+  <li>Click <strong>Insights</strong> in the sidebar.</li>
+  <li><strong>Metrics</strong>: Cache Hit Rate (CHR), Precision, Recall, F1 Score.</li>
+  <li><strong>Threshold Optimization</strong>: shows near-miss analysis &mdash; if lowering the threshold would help, a recommendation card appears.</li>
+  <li><strong>Matching Quality</strong>: based on reviewer actions from Request Logs.</li>
+  <li>Link to <strong>Configure cache settings &rarr; Settings</strong> for quick access.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image14.png" alt="Insights for Precision, Recall, F1 Score">
+  <figcaption><strong>Step 14</strong> &mdash; Insights for Precision, Recall, F1 Score, and Threshold Optimization</figcaption>
+</figure>
+
+
+<!-- Step 15 -->
+<h2 id="step15">15. System Logs</h2>
+<ul>
+  <li>Click <strong>System Log</strong> in the sidebar.</li>
+  <li>Audit trail of all configuration changes: filter by <span class="badge badge-gray">Settings</span>, <span class="badge badge-green">Model Config</span>, <span class="badge badge-gray">Organization</span>, <span class="badge badge-amber">API Keys</span>.</li>
+  <li><strong>Table columns</strong>: Timestamp, Category, Action, Target, Details, Changed By.</li>
+  <li>Click any row to expand: see Previous Value, New Value, Details, IP Address, Action ID, and Log ID.</li>
+</ul>
+
+<figure class="screenshot">
+  <img src="images/image15.png" alt="System Logs showing audit trail">
+  <figcaption><strong>Step 15</strong> &mdash; System Logs: view system changes</figcaption>
+</figure>
+
+
+<hr class="section-divider">
+<div class="section-header">Tuning</div>
+
+<!-- Step 16 -->
+<h2 id="step16">16. Advanced Settings</h2>
+<ul>
+  <li>Click <strong>Settings</strong> <span class="step-arrow">&rarr;</span> select the <strong>Advanced Settings</strong> tab.</li>
+  <li><strong>Cache Settings</strong>: Cache TTL (seconds), Max Cache Entries, Similarity Threshold (%) slider (60&ndash;100%).</li>
+  <li><strong>Context Settings</strong>: Code Detection and Temporal Context Detection toggles.</li>
+  <li><strong>Efficiency Settings</strong>: Fuzzy Matching toggle and Fuzzy Match Sensitivity threshold.</li>
+  <li><strong>Embedding Settings</strong>: configure the embedding model and device.</li>
+  <li>Click <strong>Save</strong> to apply changes.</li>
+</ul>
+
+<div class="callout callout-tip">&#128161; Tip: Start with the default 80% threshold. Use the Insights page (Step 14) to see near-miss rates and adjust accordingly.</div>
+
+<figure class="screenshot">
+  <img src="images/image16.png" alt="Advanced Settings for fine-tuning">
+  <figcaption><strong>Step 16</strong> &mdash; Fine-tune the Semantic Cache application by modifying Advanced Settings</figcaption>
+</figure>
+
+</main>
+
+<script>
+  // Lightbox: click screenshot to zoom
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = lightbox.querySelector('img');
+  const lbCaption = lightbox.querySelector('.caption');
+
+  document.querySelectorAll('.screenshot').forEach(fig => {
+    fig.addEventListener('click', () => {
+      const img = fig.querySelector('img');
+      const cap = fig.querySelector('figcaption');
+      lbImg.src = img.src;
+      lbImg.alt = img.alt;
+      lbCaption.textContent = cap ? cap.textContent : '';
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lbImg) return;
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('[id^="step"], [id="overview"]');
+  const links = document.querySelectorAll('nav.sidebar a[href^="#"]');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // === DEMO ANIMATION ===
+  (function(){
+  'use strict';
+  var D=document.getElementById('demo');
+  if(!D)return;
+  var $=function(i){return document.getElementById(i)};
+  var tx=function(i,t){var e=$(i);if(e)e.textContent=t};
+  var W=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+  var ac=function(i,c){var e=$(i);if(e)e.classList.add(c)};
+  var rc=function(i,c){var e=$(i);if(e)e.classList.remove(c)};
+  var QUERIES=[
+    {q:"What's the Capital City of Italy?",a:"Rome is the capital city of Italy.",hit:false,sim:0},
+    {q:"Is Rome a capital of Italy?",a:"Rome is the capital city of Italy.",hit:true,sim:94},
+    {q:"When is memorial day in US?",a:"Memorial Day is observed on the last Monday of May.",hit:false,sim:5},
+    {q:"Memorial day?",a:"Memorial Day is observed on the last Monday of May.",hit:true,sim:91}
+  ];
+  var cacheEntries=[];
+  var statsL={llm:0,hits:0,cost:0,latencies:[]};
+  function buildQLists(){
+    var ll=$('l-qlist');
+    if(ll)ll.innerHTML='';
+    QUERIES.forEach(function(q,i){
+      var d1=document.createElement('div');d1.className='qi';d1.id='lqi'+i;d1.textContent='"'+q.q+'"';if(ll)ll.appendChild(d1);
+    });
+  }
+  function pillTo(p,id){if(!p)return;var f=p.parentElement,n=$(id);if(!n||!f)return;var fr=f.getBoundingClientRect(),nr=n.getBoundingClientRect();p.style.transition='none';p.style.top=(nr.top+nr.height/2-fr.top-16)+'px';p.style.left=(nr.left+nr.width/2-fr.left)+'px';p.style.transform='translateX(-50%)';void p.offsetWidth;}
+  function showPill(p,t){if(!p)return;p.textContent='"'+t+'"';p.classList.add('vis');}
+  function hidePill(p){if(!p)return;p.classList.remove('vis');}
+  function movePill(p,id,ms){ms=ms||600;if(!p)return W(ms);var f=p.parentElement,n=$(id);if(!n||!f)return W(ms);var fr=f.getBoundingClientRect(),nr=n.getBoundingClientRect();p.style.transition='top '+ms+'ms ease-in-out, left '+ms+'ms ease-in-out';p.style.top=(nr.top+nr.height/2-fr.top-16)+'px';p.style.left=(nr.left+nr.width/2-fr.left)+'px';return W(ms);}
+  function activate(id){var e=$(id);if(e)e.classList.add('act');}
+  function deactivate(id){var e=$(id);if(e)e.classList.remove('act');}
+  function glowCard(id,color){var e=$(id);if(!e)return;if(color==='g'){e.style.borderColor='#10B981';e.style.boxShadow='0 0 0 3px rgba(16,185,129,0.3),0 0 20px rgba(16,185,129,0.15)';}else{e.style.borderColor='#F59E0B';e.style.boxShadow='0 0 0 3px rgba(245,158,11,0.3),0 0 20px rgba(245,158,11,0.15)';}}
+  function unglowCard(id){var e=$(id);if(!e)return;e.style.borderColor='';e.style.boxShadow='';}
+  function stShow(id,text,cls){var e=$(id);if(!e)return;e.textContent=text;e.className='nd-st show st-'+cls;}
+  function latShow(id,text,cls){var e=$(id);if(!e)return;e.textContent=text;e.className='nd-lat show lat-'+cls;}
+  function addCacheEntry(key,val){
+    cacheEntries.push({k:key,v:val});
+    var idx=cacheEntries.length-1;
+    tx('l-cache-cnt',cacheEntries.length+' entr'+(cacheEntries.length===1?'y':'ies'));
+    if(idx<2){tx('ce'+idx+'k',key);tx('ce'+idx+'v',val);$('ce'+idx).classList.add('filled');}
+    $('l-ct-wrap').classList.add('visible');
+  }
+  function showResultPill(isHit){
+    var p=$('l-result-pill'),ico=$('l-result-icon'),txt=$('l-result-text');
+    p.classList.remove('hit','miss','show','pulse');
+    if(isHit){ico.textContent='⚡';txt.textContent='CACHE HIT';p.classList.add('hit');}
+    else{ico.textContent='✗';txt.textContent='CACHE MISS';p.classList.add('miss');}
+    requestAnimationFrame(function(){p.classList.add('show');setTimeout(function(){p.classList.add('pulse');},50);});
+  }
+  function hideResultPill(){var p=$('l-result-pill');p.classList.remove('show','pulse');setTimeout(function(){p.classList.remove('hit','miss');},300);}
+  function refreshStats(){}
+  function resetAll(){
+    D.querySelectorAll('.nd,.out-card').forEach(function(n){n.classList.remove('act','glow-g','glow-o','resp-hit','resp-miss');n.style.borderColor='';n.style.boxShadow='';});
+    $('l-dia').classList.remove('act');
+    D.querySelectorAll('.nd-st').forEach(function(s){s.className='nd-st';s.textContent='';});
+    D.querySelectorAll('.nd-lat').forEach(function(l){l.className='nd-lat';l.textContent='';});
+    D.querySelectorAll('.resp-txt').forEach(function(r){r.className='resp-txt';r.textContent='';});
+    D.querySelectorAll('.resp-lat').forEach(function(r){r.className='resp-lat';r.textContent='';});
+    D.querySelectorAll('.spin').forEach(function(s){s.classList.remove('on');});
+    D.querySelectorAll('.qi').forEach(function(q){q.classList.remove('active');});
+    tx('l-dia-pct','—');
+    $('l-store-arc').classList.remove('show','active');$('l-store-label').classList.remove('show');
+    rc('l-ct-wrap','visible');
+    rc('l-sum','show');
+    $('l-pill-yes').textContent='YES';
+    $('l-edge-yes').classList.remove('edge-glow','edge-dim');$('l-edge-no').classList.remove('edge-glow','edge-dim');
+    D.querySelectorAll('.merge-edge').forEach(function(e){e.classList.remove('active','faded');});
+    hideResultPill();
+    cacheEntries=[];tx('l-cache-cnt','0 entries');
+    for(var ci=0;ci<2;ci++){var cr=$('ce'+ci);if(cr){cr.classList.remove('filled');tx('ce'+ci+'k','');tx('ce'+ci+'v','');}}
+    statsL={llm:0,hits:0,cost:0,latencies:[]};
+    hidePill($('lp'));
+  }
+  function setPip(i){D.querySelectorAll('.pip').forEach(function(p,j){p.classList.toggle('on',j===i);});}
+  async function playQuery(idx){
+    var q=QUERIES[idx];
+    var lp=$('lp');
+    setPip(idx);tx('hdr-q','Query '+(idx+1)+'/4');
+    D.querySelectorAll('.qi').forEach(function(el){el.classList.remove('active');});
+    ac('lqi'+idx,'active');
+    activate('l-user');
+    pillTo(lp,'l-user');
+    showPill(lp,q.q);
+    await W(1500);
+    await movePill(lp,'l-gw',600);
+    deactivate('l-user');
+    activate('l-gw');
+    stShow('l-gw-st','✓ Checks passed','g');
+    await W(1200);
+    await movePill(lp,'l-emb',600);
+    deactivate('l-gw');
+    activate('l-emb');ac('l-emb-sp','on');stShow('l-emb-st','Processing...','m');
+    await W(1000);rc('l-emb-sp','on');stShow('l-emb-st','Vector created','g');
+    await W(600);
+    await movePill(lp,'l-dia',500);
+    deactivate('l-emb');$('l-dia').classList.add('act');
+    tx('l-dia-pct',q.sim+'%');
+    if(q.hit){
+      $('l-pill-yes').textContent='YES · '+q.sim+'%';
+      $('l-edge-yes').classList.add('edge-glow');$('l-edge-no').classList.add('edge-dim');
+      showResultPill(true);
+      await W(800);
+      await movePill(lp,'l-cache',500);
+      $('l-dia').classList.remove('act');
+      glowCard('l-cache','g');
+      stShow('l-cache-st','Match found!','g');
+      latShow('l-hit-lat','⚡ 15ms','f');
+      statsL.hits++;statsL.latencies.push(15);
+      await W(600);
+      drawBranches();$('l-merge-cache').classList.add('active');$('l-merge-llm').classList.add('faded');
+      await movePill(lp,'l-resp',600);
+      unglowCard('l-cache');
+      $('l-resp').classList.add('resp-hit');
+      var rl=$('l-resp-lat');rl.textContent='⚡ 15ms';rl.className='resp-lat show rlat-f';
+      var rt=$('l-resp-t');rt.textContent='"'+q.a+'"';rt.classList.add('show');
+      hidePill(lp);
+      await W(3500);
+    } else {
+      $('l-edge-no').classList.add('edge-glow');$('l-edge-yes').classList.add('edge-dim');
+      showResultPill(false);
+      await W(800);
+      await movePill(lp,'l-llm',500);
+      $('l-dia').classList.remove('act');
+      glowCard('l-llm','o');
+      ac('l-llm-sp','on');stShow('l-llm-st','Processing...','m');
+      latShow('l-llm-lat','⏱ 1800ms','s');
+      statsL.llm++;statsL.cost+=0.03;statsL.latencies.push(1800);
+      await W(2000);rc('l-llm-sp','on');stShow('l-llm-st','Response generated','o');
+      $('l-store-arc').classList.add('show','active');$('l-store-label').classList.add('show');
+      addCacheEntry(q.q,q.a);
+      await W(50);drawBranches();
+      $('l-merge-llm').classList.add('active');$('l-merge-cache').classList.add('faded');
+      glowCard('l-cache','g');
+      await Promise.all([movePill(lp,'l-resp',800),W(800)]);
+      unglowCard('l-llm');unglowCard('l-cache');
+      $('l-resp').classList.add('resp-miss');
+      var rl2=$('l-resp-lat');rl2.textContent='⏱ 1800ms';rl2.className='resp-lat show rlat-s';
+      var rt2=$('l-resp-t');rt2.textContent='"'+q.a+'"';rt2.classList.add('show');
+      hidePill(lp);
+      await W(2000);
+    }
+    await W(2000);
+    D.querySelectorAll('.nd,.out-card').forEach(function(n){n.classList.remove('act','glow-g','glow-o','resp-hit','resp-miss');n.style.borderColor='';n.style.boxShadow='';});
+    $('l-dia').classList.remove('act');
+    D.querySelectorAll('.nd-st').forEach(function(s){s.className='nd-st';s.textContent='';});
+    D.querySelectorAll('.nd-lat').forEach(function(l){l.className='nd-lat';l.textContent='';});
+    D.querySelectorAll('.resp-txt').forEach(function(r){r.className='resp-txt';r.textContent='';});
+    D.querySelectorAll('.resp-lat').forEach(function(r){r.className='resp-lat';r.textContent='';});
+    D.querySelectorAll('.spin').forEach(function(s){s.classList.remove('on');});
+    tx('l-dia-pct','—');
+    $('l-store-arc').classList.remove('show','active');$('l-store-label').classList.remove('show');
+    $('l-pill-yes').textContent='YES';$('l-edge-yes').classList.remove('edge-glow','edge-dim');$('l-edge-no').classList.remove('edge-glow','edge-dim');
+    D.querySelectorAll('.merge-edge').forEach(function(e){e.classList.remove('active','faded');});
+    drawBranches();
+    hideResultPill();
+  }
+  function drawBranches(){
+    var section=$('l-dia-section');
+    var dia=$('l-dia');var cache=$('l-cache');var llm=$('l-llm');var resp=$('l-resp');
+    if(!section||!dia||!cache||!llm)return;
+    var sr=section.getBoundingClientRect();
+    var dr=dia.getBoundingClientRect();var cr=cache.getBoundingClientRect();var lr=llm.getBoundingClientRect();
+    var yesX=dr.left-sr.left;var yesY=dr.top-sr.top+dr.height/2;
+    var noX=dr.right-sr.left;var noY=yesY;
+    var cTX=cr.left-sr.left+cr.width/2;var cTY=cr.top-sr.top;
+    var lTX=lr.left-sr.left+lr.width/2;var lTY=lr.top-sr.top;
+    $('l-edge-yes').setAttribute('d','M'+yesX+','+yesY+' H'+cTX+' V'+cTY);
+    $('l-edge-no').setAttribute('d','M'+noX+','+noY+' H'+lTX+' V'+lTY);
+    var yp=$('l-pill-yes');yp.style.left=((yesX+cTX)/2)+'px';yp.style.top=yesY+'px';
+    var np=$('l-pill-no');np.style.left=((noX+lTX)/2)+'px';np.style.top=noY+'px';
+    var sStartX=lr.left-sr.left;var sStartY=lr.top-sr.top+lr.height/2;
+    var sEndX=cr.right-sr.left;var sEndY=cr.top-sr.top+cr.height/2;
+    var sMidX=(sStartX+sEndX)/2;var sPeakY=Math.min(sStartY,sEndY)-35;
+    $('l-store-arc').setAttribute('d','M'+sStartX+','+sStartY+' Q'+sMidX+','+sPeakY+' '+sEndX+','+sEndY);
+    var sl=$('l-store-label');sl.style.left=sMidX+'px';sl.style.top=(sPeakY+50)+'px';
+    if(resp){
+      var rr=resp.getBoundingClientRect();
+      var cBotX=cr.left-sr.left+cr.width/2;var cBotY=cr.bottom-sr.top;
+      var lBotX=lr.left-sr.left+lr.width/2;var lBotY=lr.bottom-sr.top;
+      var rTopX=rr.left-sr.left+rr.width/2;var rTopY=rr.top-sr.top;
+      var ctrlY=cBotY+(rTopY-cBotY)*0.65;
+      $('l-merge-cache').setAttribute('d','M'+cBotX+','+cBotY+' C'+cBotX+','+ctrlY+' '+rTopX+','+ctrlY+' '+rTopX+','+rTopY);
+      $('l-merge-llm').setAttribute('d','M'+lBotX+','+lBotY+' C'+lBotX+','+ctrlY+' '+rTopX+','+ctrlY+' '+rTopX+','+rTopY);
+    }
+  }
+  window.addEventListener('resize',function(){drawBranches();});
+  async function mainLoop(){
+    while(true){
+      resetAll();buildQLists();await W(500);
+      for(var i=0;i<QUERIES.length;i++){await playQuery(i);await W(1000);}
+      tx('l-sum-t','✅ '+statsL.hits+' cache hits, '+statsL.llm+' LLM calls — $'+(statsL.cost).toFixed(2));
+      ac('l-sum','show');
+      await W(500);
+    }
+  }
+  buildQLists();
+  document.fonts.ready.then(function(){drawBranches();});
+  setTimeout(function(){drawBranches();},500);
+  setTimeout(function(){drawBranches();mainLoop();},2000);
+  })();
+</script>
+
+</body>
+</html>
